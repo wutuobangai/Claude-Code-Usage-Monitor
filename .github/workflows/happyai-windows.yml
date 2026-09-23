@@ -1,0 +1,37 @@
+# © Happy AI · 构建「Claude 额度小助手」Windows 安装包（happyai-gui/）
+name: happyai-windows
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install . pywebview pyinstaller
+      - name: PyInstaller
+        working-directory: happyai-gui
+        run: pyinstaller --noconfirm --windowed --name ClaudeQuotaHelper --icon icon.ico --add-data "ui.html;." --collect-all claude_monitor --collect-all webview app.py
+      - name: Smoke test engine inside frozen app
+        working-directory: happyai-gui
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath "dist\ClaudeQuotaHelper\ClaudeQuotaHelper.exe" -ArgumentList "--engine","--version" -RedirectStandardOutput out.txt -Wait -PassThru -NoNewWindow
+          Get-Content out.txt
+      - name: Inno Setup
+        working-directory: happyai-gui
+        shell: pwsh
+        run: |
+          if (-not (Get-Command iscc -ErrorAction SilentlyContinue)) { choco install innosetup -y --no-progress }
+          $iscc = (Get-Command iscc -ErrorAction SilentlyContinue).Source
+          if (-not $iscc) { $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" }
+          & $iscc installer.iss
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ClaudeQuotaHelper-windows
+          path: happyai-gui/Output/*.exe
