@@ -1,3 +1,16 @@
+> ## 🇨🇳 Claude 额度小助手 · 中文一键安装版（Happy AI 维护）
+> 双击就能看 Claude Code **5 小时额度用了多少、几点重置、几点用完**，不用敲命令。只读本机记录，不上传。
+>
+> **⭐ 下载**：[Releases](https://github.com/wutuobangai/Claude-Code-Usage-Monitor/releases/tag/v1.0.0-happyai) 里以 `00-Recommended-` 开头的压缩包（Windows 一键安装 / macOS dmg，含三步图文说明）· [中文下载页](https://wutuobangai.top/claude-quota.html?utm_source=github&utm_medium=readme&utm_campaign=claude-quota-20260923)
+>
+> 🧑‍💻 **维护者 Happy AI · 阿浩**（抖音「跟着阿浩玩Ai」）｜官网 **[wutuobangai.top](https://wutuobangai.top/?utm_source=github&utm_medium=readme&utm_campaign=claude-quota-20260923)**：Claude Pro / Max、ChatGPT Plus / Pro、Grok、Gemini 会员正规充值，24 小时内交付，有售后｜[AI 免费知识库](https://wutuobangai.top/knowledge.html?utm_source=github&utm_medium=readme)
+>
+> 💬 加阿浩微信（送一次 AI 诊断）：<br><img src="https://cdn.wutuobangai.com/tools/qzone/happyai-wechat-poster-20260923.png" width="300" alt="扫码加阿浩微信">
+>
+> 额度引擎 = 本仓库上游 [Maciek-roboblog/Claude-Code-Usage-Monitor](https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor)（MIT，代码未修改，请优先支持原作者）；图形界面 `happyai-gui/` © Happy AI，不在 MIT 范围内。
+
+---
+
 # 🎯 Claude Code Usage Monitor
 [![PyPI Version](https://img.shields.io/pypi/v/claude-monitor.svg)](https://pypi.org/project/claude-monitor/)
 [![Python Version](https://img.shields.io/badge/python-3.9+-blue.svg)](https://python.org)
