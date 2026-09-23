@@ -1,0 +1,51 @@
+# © Happy AI · 真装一遍「Claude 额度小助手」：静默安装 → 检查桌面图标 → 打开窗口 → 截图
+name: happyai-windows-smoke
+on:
+  workflow_dispatch:
+jobs:
+  smoke:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build
+        run: |
+          python -m pip install --upgrade pip
+          pip install . pywebview pyinstaller
+          cd happyai-gui
+          pyinstaller --noconfirm --windowed --name ClaudeQuotaHelper --icon icon.ico --add-data "ui.html;." --collect-all claude_monitor --collect-all webview app.py
+          if (-not (Get-Command iscc -ErrorAction SilentlyContinue)) { choco install innosetup -y --no-progress }
+          $iscc = (Get-Command iscc -ErrorAction SilentlyContinue).Source; if (-not $iscc) { $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" }
+          & $iscc installer.iss
+        shell: pwsh
+      - name: Silent install + check shortcuts
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem happyai-gui\Output\*.exe | Select-Object -First 1
+          Start-Process $setup.FullName -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART" -Wait
+          $desk = [Environment]::GetFolderPath('Desktop')
+          Get-ChildItem $desk | Format-Table Name
+          $exe = Join-Path $env:LOCALAPPDATA "Programs\ClaudeQuotaHelper\ClaudeQuotaHelper.exe"
+          if (-not (Test-Path $exe)) { throw "exe not installed" }
+          if (-not (Test-Path (Join-Path $desk "Claude 额度小助手.lnk"))) { throw "desktop shortcut missing" }
+      - name: Launch and screenshot
+        shell: pwsh
+        run: |
+          $exe = Join-Path $env:LOCALAPPDATA "Programs\ClaudeQuotaHelper\ClaudeQuotaHelper.exe"
+          $p = Start-Process $exe -PassThru
+          Start-Sleep -Seconds 25
+          Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+          $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+          $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+          $g = [System.Drawing.Graphics]::FromImage($bmp); $g.CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
+          $bmp.Save("smoke.png")
+          Get-Process ClaudeQuotaHelper -ErrorAction SilentlyContinue | Format-Table Id, MainWindowTitle
+          if ($p.HasExited) { throw "app exited early, code $($p.ExitCode)" }
+          Stop-Process -Id $p.Id -Force
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-screenshot
+          path: smoke.png
